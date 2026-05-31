@@ -1,6 +1,3 @@
-import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
-import org.gradle.kotlin.dsl.*
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -8,6 +5,7 @@ plugins {
 }
 
 android {
+    namespace = "com.sudanrx.app"
     compileSdk = 34
 
     compileOptions {
@@ -20,7 +18,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.sudanrx.app"  // Change to your package
+        applicationId = "com.sudanrx.app"
         minSdk = 21
         targetSdk = 34
         versionCode = 1
@@ -31,7 +29,10 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             signingConfig = signingConfigs.getByName("debug")
         }
     }
