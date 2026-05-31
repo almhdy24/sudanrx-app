@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/api_service.dart';
+import '../../services/database_helper.dart';
 import '../guidelines/guideline_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,10 +11,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _guidelines = [];
-  List<dynamic> _categories = [];
+  List<Map<String, dynamic>> _categories = [];
   bool _isLoading = true;
-  String? _errorMessage;
   int? _selectedCategoryId;
+
+  final DatabaseHelper _db = DatabaseHelper();
 
   @override
   void initState() {
@@ -23,99 +24,42 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    final categories = await _db.getCategories();
+    final guidelines = await _db.getGuidelines();
     setState(() {
-      _isLoading = true;
-      _errorMessage = null;
+      _categories = categories;
+      _guidelines = guidelines;
+      _isLoading = false;
     });
-    try {
-      final guidelines = await ApiService.getGuidelines();
-      final categories = await ApiService.getCategories();
-      setState(() {
-        _guidelines = guidelines;
-        _categories = categories;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
-    }
   }
 
-  Future<void> _filterByCategory(int id) async {
+  Future<void> _filterByCategory(int? id) async {
     setState(() {
-      _isLoading = true;
       _selectedCategoryId = id;
+      _isLoading = true;
     });
-    try {
-      final filtered = await ApiService.getGuidelines(categoryId: id);
-      setState(() {
-        _guidelines = filtered;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
-    }
+    final filtered = await _db.getGuidelines(categoryId: id);
+    setState(() {
+      _guidelines = filtered;
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('SudanRx'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.sync),
-            onPressed: _loadData,
-            tooltip: 'Refresh',
-          ),
-        ],
+    return Container(
+      color: const Color(0xFFE0E0E0),
+      child: RefreshIndicator(
+        onRefresh: _loadData,
+        child: _buildBody(),
       ),
-      body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
-    }
-    if (_errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              Text(
-                'Failed to load data',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _errorMessage!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _loadData,
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    if (_guidelines.isEmpty && _categories.isEmpty) {
-      return const Center(
-        child: Text('No guidelines available.\nPull to refresh.'),
-      );
     }
     return Column(
       children: [
@@ -129,7 +73,7 @@ class _HomePageState extends State<HomePage> {
                 final cat = _categories[index];
                 final isSelected = _selectedCategoryId == cat['id'];
                 return GestureDetector(
-                  onTap: () => _filterByCategory(cat['id']),
+                  onTap: () => _filterByCategory(isSelected ? null : cat['id']),
                   child: Container(
                     margin: const EdgeInsets.all(6),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -148,7 +92,7 @@ class _HomePageState extends State<HomePage> {
           ),
         Expanded(
           child: _guidelines.isEmpty
-              ? const Center(child: Text('No guidelines in this category'))
+              ? const Center(child: Text('No guidelines found'))
               : ListView.builder(
                   itemCount: _guidelines.length,
                   itemBuilder: (context, index) {
@@ -157,7 +101,7 @@ class _HomePageState extends State<HomePage> {
                       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       child: ListTile(
                         title: Text(item['title']),
-                        subtitle: Text(item['category_name'] ?? ''),
+                        subtitle: Text(_getCategoryName(item['category_id'])),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -176,5 +120,13 @@ class _HomePageState extends State<HomePage> {
         ),
       ],
     );
+  }
+
+  String _getCategoryName(int? catId) {
+    if (catId == null) return '';
+    for (final cat in _categories) {
+      if (cat['id'] == catId) return cat['name'];
+    }
+    return '';
   }
 }

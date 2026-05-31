@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "categories": [
+    {"id": 1, "name": "Emergency"},
+    {"id": 2, "name": "Infectious Diseases"},
+    {"id": 3, "name": "Internal Medicine"}
+  ],
+  "guidelines": [
+    {
+      "id": 1,
+      "title": "Diabetic Ketoacidosis (DKA)",
+      "slug": "dka",
+      "category_id": 1,
+      "overview": "DKA is a serious complication of diabetes...",
+      "diagnosis": "Blood glucose >250 mg/dL, ketonemia, metabolic acidosis...",
+      "management": "IV fluids, insulin, potassium replacement...",
+      "complications": "Cerebral edema, hypokalemia...",
+      "updated_at": "2025-01-01"
+    },
+    {
+      "id": 2,
+      "title": "Malaria (Severe)",
+      "slug": "malaria",
+      "category_id": 2,
+      "overview": "Severe malaria is a medical emergency...",
+      "diagnosis": "Blood smear, RDT, clinical signs...",
+      "management": "IV artesunate, supportive care...",
+      "complications": "Cerebral malaria, renal failure...",
+      "updated_at": "2025-01-01"
+    }
+  ]
+}

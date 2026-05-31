@@ -27,20 +27,22 @@ class _BookmarksPageState extends State<BookmarksPage> {
     });
   }
 
-  Future<void> _remove(String slug) async {
-    await BookmarkService.removeBookmark(slug);
+  Future<void> _remove(int guidelineId, String slug) async {
+    await BookmarkService.removeBookmark(guidelineId);
     _load();
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Removed from bookmarks')));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Bookmarks')),
-      body: _isLoading
+    return Container(
+      color: const Color(0xFFE0E0E0),
+      child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _bookmarks.isEmpty
               ? const Center(child: Text('No bookmarks yet'))
               : ListView.builder(
+                  padding: const EdgeInsets.all(8),
                   itemCount: _bookmarks.length,
                   itemBuilder: (context, index) {
                     final item = _bookmarks[index];
@@ -51,7 +53,7 @@ class _BookmarksPageState extends State<BookmarksPage> {
                         subtitle: Text(item['category_name'] ?? ''),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _remove(item['slug']),
+                          onPressed: () => _remove(item['id'], item['slug']),
                         ),
                         onTap: () {
                           Navigator.push(

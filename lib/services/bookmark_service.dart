@@ -1,21 +1,21 @@
-import 'database_service.dart';
+import 'database_helper.dart';
 
 class BookmarkService {
-  static final DatabaseService _db = DatabaseService();
+  static final DatabaseHelper _db = DatabaseHelper();
 
   static Future<List<Map<String, dynamic>>> getBookmarks() async {
-    return await _db.getBookmarks();
+    return await _db.getBookmarkedGuidelines();
   }
 
-  static Future<void> addBookmark(Map<String, dynamic> guideline) async {
-    await _db.addBookmark(guideline);
+  static Future<void> addBookmark(int guidelineId) async {
+    await _db.addBookmark(guidelineId);
   }
 
-  static Future<void> removeBookmark(String slug) async {
-    await _db.removeBookmark(slug);
+  static Future<void> removeBookmark(int guidelineId) async {
+    await _db.removeBookmark(guidelineId);
   }
 
-  static Future<bool> isBookmarked(String slug) async {
-    return await _db.isBookmarked(slug);
+  static Future<bool> isBookmarked(int guidelineId) async {
+    return await _db.isBookmarked(guidelineId);
   }
 }

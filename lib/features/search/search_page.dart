@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/api_service.dart';
+import '../../services/database_helper.dart';
 import '../guidelines/guideline_page.dart';
 
 class SearchPage extends StatefulWidget {
@@ -10,6 +10,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  final DatabaseHelper _db = DatabaseHelper();
   List<Map<String, dynamic>> _results = [];
   bool _isSearching = false;
 
@@ -19,45 +20,46 @@ class _SearchPageState extends State<SearchPage> {
       return;
     }
     setState(() => _isSearching = true);
-    final results = await ApiService.search(query);
+    final results = await _db.searchGuidelines(query);
     setState(() {
-      _results = results.cast<Map<String, dynamic>>();
+      _results = results;
       _isSearching = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Search')),
-      body: Column(
+    return Container(
+      color: const Color(0xFFE0E0E0),
+      child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
             child: TextField(
               decoration: const InputDecoration(
-                hintText: 'Type keyword...',
+                hintText: 'Search guidelines...',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
               ),
               onChanged: _search,
-              autofocus: true,
             ),
           ),
           Expanded(
             child: _isSearching
                 ? const Center(child: CircularProgressIndicator())
                 : _results.isEmpty
-                    ? const Center(child: Text('No results'))
+                    ? const Center(child: Text('No results found'))
                     : ListView.builder(
                         itemCount: _results.length,
                         itemBuilder: (context, index) {
                           final item = _results[index];
                           return Card(
-                            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                             child: ListTile(
                               title: Text(item['title']),
-                              subtitle: Text(item['category_name'] ?? ''),
+                              subtitle: Text(item['overview']?.substring(0, 100) ?? ''),
                               onTap: () {
                                 Navigator.push(
                                   context,

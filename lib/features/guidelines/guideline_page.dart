@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/api_service.dart';
+import '../../services/database_helper.dart';
 import '../../services/bookmark_service.dart';
 
 class GuidelinePage extends StatefulWidget {
@@ -12,10 +12,10 @@ class GuidelinePage extends StatefulWidget {
 }
 
 class _GuidelinePageState extends State<GuidelinePage> {
+  final DatabaseHelper _db = DatabaseHelper();
   Map<String, dynamic>? _data;
   bool _isLoading = true;
   bool _isBookmarked = false;
-  String? _error;
 
   @override
   void initState() {
@@ -24,31 +24,27 @@ class _GuidelinePageState extends State<GuidelinePage> {
   }
 
   Future<void> _load() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-    try {
-      final data = await ApiService.getGuideline(widget.slug);
-      final bookmarked = await BookmarkService.isBookmarked(widget.slug);
+    final data = await _db.getGuidelineBySlug(widget.slug);
+    if (data != null) {
+      final bookmarked = await BookmarkService.isBookmarked(data['id']);
       setState(() {
         _data = data;
         _isBookmarked = bookmarked;
         _isLoading = false;
       });
-    } catch (e) {
+    } else {
       setState(() {
-        _error = e.toString();
         _isLoading = false;
       });
     }
   }
 
   Future<void> _toggleBookmark() async {
+    if (_data == null) return;
     if (_isBookmarked) {
-      await BookmarkService.removeBookmark(widget.slug);
+      await BookmarkService.removeBookmark(_data!['id']);
     } else {
-      await BookmarkService.addBookmark(_data!);
+      await BookmarkService.addBookmark(_data!['id']);
     }
     setState(() => _isBookmarked = !_isBookmarked);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -69,42 +65,19 @@ class _GuidelinePageState extends State<GuidelinePage> {
           ),
         ],
       ),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            Text('Error: $_error'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _load,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
-    }
-    if (_data == null) {
-      return const Center(child: Text('No data available'));
-    }
-    return ListView(
-      padding: const EdgeInsets.all(12),
-      children: [
-        _infoCard('Overview', _data!['overview']),
-        _infoCard('Diagnosis', _data!['diagnosis']),
-        _infoCard('Management', _data!['management']),
-        _infoCard('Complications', _data!['complications']),
-      ],
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _data == null
+              ? const Center(child: Text('Guideline not found'))
+              : ListView(
+                  padding: const EdgeInsets.all(12),
+                  children: [
+                    _infoCard('Overview', _data!['overview']),
+                    _infoCard('Diagnosis', _data!['diagnosis']),
+                    _infoCard('Management', _data!['management']),
+                    _infoCard('Complications', _data!['complications']),
+                  ],
+                ),
     );
   }
 

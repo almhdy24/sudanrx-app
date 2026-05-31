@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'main_shell.dart';
-import 'services/api_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initialize() async {
-    await ApiService.syncGuidelines();
+    // Simply wait a moment before showing main app
     await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) {
       Navigator.pushReplacement(
