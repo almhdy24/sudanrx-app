@@ -1,0 +1,140 @@
+FLUTTER GRADLE BUILD FIX - SudanRx Project
+============================================
+
+Issue: Build failed with error - Plugin [id: 'dev.flutter.flutter-gradle-plugin', version: '1.0.0'] was not found
+Job URL: https://github.com/almhdy24/sudanrx/actions/runs/26722511035/job/78752039805
+Commit: f619a86f85c761f7bbedb25e1fac50bde500fdf3
+
+ROOT CAUSE:
+-----------
+The android/settings.gradle.kts was explicitly declaring the Flutter plugin with a version that doesn't exist or is incompatible.
+Flutter plugin versions should be managed by the Flutter SDK itself, not manually declared in build files.
+
+SOLUTION:
+---------
+Update these three files:
+
+1. android/settings.gradle.kts
+   - Remove the explicit plugin declaration from pluginManagement
+   - Keep only the repository definitions
+
+2. android/app/build.gradle.kts  
+   - Keep the plugin id("dev.flutter.flutter-gradle-plugin") declaration
+   - DO NOT specify a version on it
+   - Flutter will inject the correct version at build time
+
+3. android/gradle.properties
+   - Add org.gradle.diagnostics=false (optional but recommended)
+
+UPDATED FILES:
+==============
+
+FILE: android/settings.gradle.kts
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+include(":app")
+
+
+FILE: android/app/build.gradle.kts
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    id("dev.flutter.flutter-gradle-plugin")
+}
+
+android {
+    namespace = "com.sudanrx.app"
+    compileSdk = 34
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    defaultConfig {
+        applicationId = "com.sudanrx.app"
+        minSdk = 21
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+
+FILE: android/gradle.properties
+org.gradle.jvmargs=-Xmx8G -XX:MaxMetaspaceSize=4G -XX:ReservedCodeCacheSize=512m -XX:+HeapDumpOnOutOfMemoryError
+android.useAndroidX=true
+org.gradle.diagnostics=false
+
+
+KEY CHANGES:
+============
+1. REMOVED from settings.gradle.kts:
+   - plugins {
+   -     id("dev.flutter.flutter-gradle-plugin") version "1.0.0"
+   - }
+
+2. KEPT in app/build.gradle.kts:
+   - id("dev.flutter.flutter-gradle-plugin") (WITHOUT version)
+
+3. ADDED to gradle.properties:
+   - org.gradle.diagnostics=false
+
+
+HOW IT WORKS:
+=============
+- flutter precache --android (in CI/CD) downloads and prepares the correct Flutter plugin
+- flutter build apk injects the correct plugin version automatically
+- Manual version declarations in settings.gradle.kts conflict with this automatic injection
+- Removing the version declaration allows Flutter tooling to manage it properly
+
+WORKFLOW CONTEXT:
+=================
+Flutter Version: 3.24.0 (stable)
+Gradle Version: 8.14
+Android Gradle Plugin: 8.1.0
+Kotlin Version: 1.9.24
+Java Version: 17
+Min SDK: 21
+Target SDK: 34
+Compile SDK: 34
+
+TEST COMMAND:
+=============
+Local testing before pushing:
+flutter clean
+flutter precache --android
+flutter build apk --release --split-per-abi --verbose
+
+NOTES:
+======
+- This is the standard Flutter Android setup
+- The workflow (.github/workflows/build-apk.yml) does not need changes
+- If errors persist after these changes, they will be different errors (not plugin resolution)
+- Keep this file for reference if build issues occur again
