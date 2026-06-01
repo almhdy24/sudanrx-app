@@ -22,26 +22,14 @@ jobs:
           flutter-version: '3.27.0'
           cache: false
 
-      - name: Disable Flutter analytics + watcher
-        run: |
-          flutter config --no-analytics
-          export PUB_CACHE=$HOME/.pub-cache
+      - run: flutter pub get
 
-      - name: Clean project
+      - name: Build APK via Gradle (stable CI mode)
         run: |
-          git clean -xfd
-          flutter clean
-
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Build APK (safe mode)
-        run: |
-          flutter build apk --release \
-          --no-tree-shake-icons \
-          --no-pub
+          cd android
+          ./gradlew assembleRelease
 
       - uses: actions/upload-artifact@v4
         with:
           name: sudanrx-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
