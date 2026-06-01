@@ -25,9 +25,9 @@ jobs:
 
       - run: flutter precache --android
 
-      - run: flutter build apk --release --split-per-abi
+      - run: flutter build apk --release
 
       - uses: actions/upload-artifact@v4
         with:
           name: sudanrx-apk
-          path: build/app/outputs/flutter-apk/
+          path: build/app/outputs/flutter-apk/app-release.apk
