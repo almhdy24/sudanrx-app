@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.sudanrx.app"
-    compileSdk = 34
+    compileSdk = 35
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -20,7 +20,7 @@ android {
     defaultConfig {
         applicationId = "com.sudanrx.app"
         minSdk = 21
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
     }
