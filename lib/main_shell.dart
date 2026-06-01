@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+
+import 'features/about/about_page.dart';
+import 'features/bookmarks/bookmarks_page.dart';
+import 'features/contribute/contribute_page.dart';
 import 'features/home/home_page.dart';
 import 'features/search/search_page.dart';
-import 'features/bookmarks/bookmarks_page.dart';
-import 'features/about/about_page.dart';
-import 'features/contribute/contribute_page.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -19,8 +20,8 @@ class _MainShellState extends State<MainShell> {
     HomePage(),
     SearchPage(),
     BookmarksPage(),
-    AboutPage(),
     ContributePage(),
+    AboutPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -29,26 +30,60 @@ class _MainShellState extends State<MainShell> {
     });
   }
 
+  bool get _showFab => _selectedIndex != 3;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SudanRx'),
-        centerTitle: true,
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
       ),
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF1976D2),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: 'Bookmarks'),
-          BottomNavigationBarItem(icon: Icon(Icons.info), label: 'About'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Contribute'),
+
+      floatingActionButton: _showFab
+          ? FloatingActionButton.extended(
+              backgroundColor: const Color(0xFF00C853),
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.volunteer_activism),
+              label: const Text('Contribute'),
+              onPressed: () {
+                setState(() {
+                  _selectedIndex = 3;
+                });
+              },
+            )
+          : null,
+
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onItemTapped,
+        height: 72,
+        indicatorColor: const Color(0xFFE3F2FD),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bookmark_border),
+            selectedIcon: Icon(Icons.bookmark),
+            label: 'Saved',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.volunteer_activism_outlined),
+            selectedIcon: Icon(Icons.volunteer_activism),
+            label: 'Contribute',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.info_outline),
+            selectedIcon: Icon(Icons.info),
+            label: 'About',
+          ),
         ],
       ),
     );

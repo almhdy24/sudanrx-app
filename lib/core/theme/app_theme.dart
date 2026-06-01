@@ -1,78 +1,125 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
+  static const primary = Color(0xFF1976D2);
+  static const primaryDark = Color(0xFF0D47A1);
+  static const accent = Color(0xFF00C853);
+
+  // =========================
+  // LIGHT
+  // =========================
   static final ThemeData classic = ThemeData(
-    brightness: Brightness.light,
-    primaryColor: const Color(0xFF1976D2),
-    scaffoldBackgroundColor: const Color(0xFFE0E0E0),
+    useMaterial3: true,
+
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: primary,
+      primary: primary,
+      secondary: accent,
+      brightness: Brightness.light,
+    ),
+
+    scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF1976D2),
+      backgroundColor: primary,
+      foregroundColor: Colors.white,
       centerTitle: true,
       elevation: 0,
       titleTextStyle: TextStyle(
         fontSize: 20,
+        fontWeight: FontWeight.w700,
         color: Colors.white,
-        fontWeight: FontWeight.bold,
       ),
     ),
-    cardTheme: const CardTheme(
+
+    // ✅ FIX HERE
+    cardTheme: CardThemeData(
       color: Colors.white,
-      elevation: 1,
+      elevation: 2,
+      shadowColor: Colors.black12,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-        side: BorderSide(color: Color(0xFFBDBDBD)),
+        borderRadius: BorderRadius.circular(16),
       ),
     ),
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF2E7D32),
+        backgroundColor: accent,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
+        minimumSize: const Size(double.infinity, 52),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
         ),
       ),
     ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: Color(0xFFE2E8F0),
+        ),
+      ),
+    ),
+
     textTheme: const TextTheme(
-      bodyLarge: TextStyle(fontSize: 16, color: Color(0xFF212121)),
-      titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      headlineSmall: TextStyle(fontWeight: FontWeight.bold),
+      titleLarge: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+      ),
+      bodyLarge: TextStyle(
+        fontSize: 16,
+        height: 1.5,
+      ),
     ),
   );
 
+  // =========================
+  // DARK
+  // =========================
   static final ThemeData dark = ThemeData(
-    brightness: Brightness.dark,
-    scaffoldBackgroundColor: const Color(0xFF121212),
+    useMaterial3: true,
+
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: primary,
+      primary: primary,
+      secondary: accent,
+      brightness: Brightness.dark,
+    ),
+
+    scaffoldBackgroundColor: const Color(0xFF0F172A),
+
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF0D47A1),
+      backgroundColor: primaryDark,
+      foregroundColor: Colors.white,
       centerTitle: true,
       elevation: 0,
-      titleTextStyle: TextStyle(
-        fontSize: 20,
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-      ),
     ),
-    cardTheme: const CardTheme(
-      color: Color(0xFF1E1E1E),
-      elevation: 1,
+
+    // ✅ FIX HERE TOO
+    cardTheme: CardThemeData(
+      color: const Color(0xFF1E293B),
+      elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-        side: BorderSide(color: Color(0xFF333333)),
+        borderRadius: BorderRadius.circular(16),
       ),
     ),
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF2E7D32),
+        backgroundColor: accent,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
+        minimumSize: const Size(double.infinity, 52),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
         ),
       ),
-    ),
-    textTheme: const TextTheme(
-      bodyLarge: TextStyle(fontSize: 16, color: Colors.white70),
-      titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
     ),
   );
 }
