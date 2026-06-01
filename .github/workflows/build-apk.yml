@@ -12,9 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Clean workspace
-        run: git clean -xfd
-
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -25,11 +22,24 @@ jobs:
           flutter-version: '3.27.0'
           cache: false
 
-      - name: Flutter pub get
+      - name: Disable Flutter analytics + watcher
+        run: |
+          flutter config --no-analytics
+          export PUB_CACHE=$HOME/.pub-cache
+
+      - name: Clean project
+        run: |
+          git clean -xfd
+          flutter clean
+
+      - name: Get dependencies
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Build APK (safe mode)
+        run: |
+          flutter build apk --release \
+          --no-tree-shake-icons \
+          --no-pub
 
       - uses: actions/upload-artifact@v4
         with:
